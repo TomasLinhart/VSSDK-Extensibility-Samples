@@ -15,6 +15,9 @@ using System.Diagnostics;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Samples.VisualStudio.Services.Interfaces;
+using EnvDTE;
+using EnvDTE80;
+using System.IO;
 
 namespace Microsoft.Samples.VisualStudio.Services
 {
@@ -57,7 +60,7 @@ namespace Microsoft.Samples.VisualStudio.Services
 
 			// Define the command and add it to the command service.
 			CommandID id = new CommandID(GuidsList.guidClientCmdSet, ClientPkgCmdIDList.cmdidClientGetGlobalService);
-			MenuCommand command = new MenuCommand(GetGlobalServiceCallback, id);
+			MenuCommand command = new MenuCommand(CreateProjectCallback, id);
 			mcs.AddCommand(command);
 
 			// Add the command that will try to get the local server and that is expected to fail.
@@ -71,32 +74,6 @@ namespace Microsoft.Samples.VisualStudio.Services
 			command = new MenuCommand(GetLocalUsingGlobalCallback, id);
 			mcs.AddCommand(command);
 		}
-
-		/// <summary>
-		/// This function is the event handler for the command defined by this package and is the
-		/// consumer of the service exposed by the ServicesPackage package.
-		/// </summary>
-		private void GetGlobalServiceCallback(object sender, EventArgs args)
-		{
-			// Get the service exposed by the other package. This the expected sequence of queries:
-			// GetService will query the service provider implemented by the base class of this
-			// package for SMyGlobalService; this service will be not found (it is not exposed by this
-			// package), so the base class will forward the request to the service provider used during 
-			// SetSite; this is the global service provider and it will find the service because
-			// ServicesPackage has proffered it using the proffer service.
-			IMyGlobalService service = GetService(typeof(SMyGlobalService)) as IMyGlobalService;
-			if (null == service)
-			{
-				// If the service is not available we can exit now.
-				Debug.WriteLine("Can not get the global service.");
-				return;
-			}
-			// Call the function exposed by the global service. This function will write a message
-			// on the output window and on the debug output so that it will be possible to verify
-			// that it executed.
-			service.GlobalServiceFunction();
-		}
-
 		/// <summary>
 		/// This is the function that will try to get the local service exposed by the Services
 		/// package. This function is expected to fail because this package has no access to the
@@ -144,5 +121,17 @@ namespace Microsoft.Samples.VisualStudio.Services
 			// Now call the method that will cause the call in the local service.
 			service.CallLocalService();
 		}
-	}
+
+        private void CreateProjectCallback(object sender, EventArgs args)
+        {
+            var dte = GetService(typeof(DTE)) as DTE;
+            var solution = (Solution2)dte.Solution;
+
+            var newProjectName = "NewProject";
+            var bindingProjectDir = Path.Combine(Path.GetDirectoryName(solution.FileName), newProjectName);
+
+            string csTemplatePath = solution.GetProjectTemplate("ConsoleApplication.zip", "CSharp");
+            solution.AddFromTemplate(csTemplatePath, bindingProjectDir, newProjectName);
+        }
+    }
 }

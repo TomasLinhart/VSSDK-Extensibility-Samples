@@ -18,7 +18,7 @@
     <!--Definition of the menu groups defined by this package. -->
     <Groups>
       <Group guid="guidClientCmdSet" id="MyClientGroup" priority="0x600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_REFERENCEROOT"/>
       </Group>
     </Groups>
     <!-- Buttons (commands) defined by the package. 
@@ -30,7 +30,7 @@
       <Button guid="guidClientCmdSet" id="cmdidClientGetGlobalService" priority="0x100" type="Button">
         <Parent guid="guidClientCmdSet" id="MyClientGroup"/>
         <Strings>
-          <ButtonText>Get C# Global Service</ButtonText>
+          <ButtonText>Create New Project</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidClientCmdSet" id="cmdidClientGetLocalService" priority="0x101" type="Button">
